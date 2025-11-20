@@ -20,12 +20,12 @@ export default function App() {
             </div>
             <div className="text-center md:text-left">
                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
-                    Sonic Haptics
+                    Signal Sonic Expert
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 uppercase tracking-widest">Demo</span>
                 </h1>
                 <p className="text-zinc-400 text-sm mt-1 flex items-center gap-1.5">
                     <Sparkles size={12} className="text-cyan-400" />
-                    Synchronized CloseUp Expert Experience
+                    Sonic Experience
                 </p>
             </div>
         </div>
@@ -38,7 +38,7 @@ export default function App() {
       <footer className="w-full border-t border-zinc-900 bg-zinc-950/50 backdrop-blur mt-auto z-10">
         <div className="max-w-4xl mx-auto px-6 py-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-xs text-zinc-600">
-                <p>&copy; 2024 Sonic Haptics Demo. Educational Prototype.</p>
+                <p>&copy; 2024 Signal Sonic Expert Demo. Educational Prototype.</p>
             </div>
             <div className="flex items-center gap-6 text-xs font-medium text-zinc-500">
                 <span className="flex items-center gap-2">

@@ -1,6 +1,4 @@
-import React, { useMemo } from 'react';
-import { HAPTIC_CUES } from '../constants';
-import { Zap } from 'lucide-react';
+import React from 'react';
 
 interface TimelineProps {
   currentTime: number;
@@ -29,40 +27,11 @@ export const Timeline: React.FC<TimelineProps> = ({ currentTime, duration, onSee
     <div className="w-full space-y-1 select-none">
       
       <div 
-        className="relative h-14 bg-zinc-900/80 backdrop-blur rounded-lg border border-zinc-800 cursor-pointer overflow-hidden group touch-none"
+        className="relative h-8 bg-zinc-900/80 backdrop-blur rounded-lg border border-zinc-800 cursor-pointer overflow-hidden group touch-none transition-all duration-200 hover:h-10"
         onClick={handleTrackClick}
       >
         {/* Background Grid / Tick Marks */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(90deg, #71717a 0px, transparent 1px, transparent 5%)' }}></div>
-
-        {/* Haptic Safe Zones (Indicators) */}
-        {HAPTIC_CUES.map((cue) => {
-          if (duration === 0) return null;
-          const startPct = (cue.startTime / duration) * 100; 
-          const widthPct = ((cue.endTime - cue.startTime) / duration) * 100;
-          const isActive = currentTime >= cue.startTime && currentTime < cue.endTime;
-
-          return (
-            <div
-              key={cue.id}
-              className={`absolute top-1.5 bottom-1.5 rounded flex flex-col items-center justify-center transition-all duration-200 border ${
-                isActive 
-                  ? 'bg-cyan-500/30 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.4)] z-10' 
-                  : 'bg-zinc-800/60 border-zinc-700/50 hover:bg-zinc-700/60'
-              }`}
-              style={{
-                left: `${startPct}%`,
-                width: `${widthPct}%`,
-              }}
-              title={`${cue.label}`}
-            >
-              <Zap size={10} className={`mb-0.5 ${isActive ? 'text-cyan-200 animate-pulse' : 'text-zinc-500'}`} />
-              <div className={`text-[8px] font-bold uppercase hidden sm:block ${isActive ? 'text-cyan-200' : 'text-zinc-500'}`}>
-                Sync
-              </div>
-            </div>
-          );
-        })}
 
         {/* Playhead Line */}
         <div 
@@ -70,7 +39,7 @@ export const Timeline: React.FC<TimelineProps> = ({ currentTime, duration, onSee
           style={{ left: `${progressPercent}%` }}
         />
         
-        {/* Playhead Knob (visible on drag/hover mostly, but keeping it static here) */}
+        {/* Playhead Knob */}
         <div 
           className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-md z-20 pointer-events-none"
           style={{ left: `${progressPercent}%` }}

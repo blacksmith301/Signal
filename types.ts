@@ -4,6 +4,7 @@ export interface HapticCue {
   endTime: number;   // in seconds
   label: string;
   description: string;
+  vibrationPattern?: number[];
 }
 
 export interface VideoState {

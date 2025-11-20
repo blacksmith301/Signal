@@ -1,5 +1,5 @@
 {
-  "name": "Sonic Haptic Player",
+  "name": "Signal Sonic Expert",
   "description": "A haptic-enabled video player that synchronizes physical device vibration with video content to simulate an ultrasonic toothbrush experience.",
   "requestFramePermissions": []
 }

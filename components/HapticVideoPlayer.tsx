@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Play, Pause, Smartphone, RefreshCw, Volume2, VolumeX, Zap, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Pause, RefreshCw, Volume2, VolumeX, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import { HAPTIC_CUES, VIDEO_URL } from '../constants';
-import { Timeline } from './Timeline';
 
 export const HapticVideoPlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -14,15 +13,7 @@ export const HapticVideoPlayer: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [activeCue, setActiveCue] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [canVibrate, setCanVibrate] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  // Check device capability
-  useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.vibrate) {
-      setCanVibrate(false);
-    }
-  }, []);
 
   // Handle Fullscreen toggling
   const toggleFullscreen = useCallback(() => {
@@ -66,11 +57,14 @@ export const HapticVideoPlayer: React.FC = () => {
       if (activeCue !== currentCue.id) {
         setActiveCue(currentCue.id);
         if (navigator.vibrate) {
-            // Continuous vibration for the remainder of the cue
-            const durationMs = (currentCue.endTime - t) * 1000;
-            // Vibrate using a pattern to feel more "sonic" (rapid pulses) or just solid
-            // Solid vibration feels more "motor-like" which fits a toothbrush
-            navigator.vibrate(Math.max(0, durationMs));
+            if (currentCue.vibrationPattern) {
+                // Use specific pattern if defined (e.g., [300, 200, 300])
+                navigator.vibrate(currentCue.vibrationPattern);
+            } else {
+                // Continuous vibration for the remainder of the cue
+                const durationMs = (currentCue.endTime - t) * 1000;
+                navigator.vibrate(Math.max(0, durationMs));
+            }
         }
       }
     } else {
@@ -112,16 +106,6 @@ export const HapticVideoPlayer: React.FC = () => {
     }
   };
 
-  const handleSeek = (time: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-      setCurrentTime(time);
-      // Reset vibration logic on seek
-      if (navigator.vibrate) navigator.vibrate(0);
-      setActiveCue(null);
-    }
-  };
-
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
@@ -141,8 +125,6 @@ export const HapticVideoPlayer: React.FC = () => {
     setDuration(e.currentTarget.duration);
     setIsLoading(false);
   };
-
-  const currentActiveCueData = HAPTIC_CUES.find(c => c.id === activeCue);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -185,20 +167,6 @@ export const HapticVideoPlayer: React.FC = () => {
           </div>
         )}
 
-        {/* Status Badge (Top Right) */}
-        <div className="absolute top-4 right-4 z-30 pointer-events-none">
-             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border transition-all duration-300 shadow-lg ${
-                 activeCue 
-                 ? 'bg-cyan-500/90 border-cyan-400 text-white scale-110 font-bold' 
-                 : 'bg-black/60 border-white/10 text-zinc-400'
-             }`}>
-                <Smartphone size={16} className={activeCue ? 'animate-bounce' : ''} />
-                <span className="text-xs tracking-wider">
-                    {activeCue ? 'VIBRATING' : 'HAPTICS READY'}
-                </span>
-             </div>
-        </div>
-
         {/* Big Play Button (Center) - Only when paused */}
         {!isPlaying && !isLoading && (
              <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none">
@@ -213,7 +181,6 @@ export const HapticVideoPlayer: React.FC = () => {
 
         {/* Controls Bar (Bottom) */}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent z-30 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex flex-col gap-3">
-            <Timeline currentTime={currentTime} duration={duration} onSeek={handleSeek} />
             
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -238,47 +205,6 @@ export const HapticVideoPlayer: React.FC = () => {
                 </div>
             </div>
         </div>
-      </div>
-
-      {/* Info / Debug Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-        {/* Current Action Card */}
-        <div className={`p-5 rounded-xl border transition-all duration-300 ${activeCue ? 'bg-gradient-to-br from-cyan-900/40 to-zinc-900 border-cyan-500/50' : 'bg-zinc-900 border-zinc-800'}`}>
-             <div className="flex items-start justify-between mb-2">
-                 <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Current Mode</h3>
-                 {activeCue && <Zap size={16} className="text-cyan-400 animate-pulse" />}
-             </div>
-             <div className="min-h-[3rem]">
-                {currentActiveCueData ? (
-                    <div>
-                        <div className="text-2xl font-bold text-white mb-1">{currentActiveCueData.label}</div>
-                        <div className="text-sm text-cyan-200/70">{currentActiveCueData.description}</div>
-                    </div>
-                ) : (
-                    <div className="text-lg font-medium text-zinc-600">Idle - Monitoring Audio...</div>
-                )}
-             </div>
-        </div>
-
-        {/* Device Status Card */}
-        <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-             <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider mb-2">Device Compatibility</h3>
-             <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${canVibrate ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500'}`} />
-                <div className="text-zinc-200 text-sm">
-                    {canVibrate 
-                        ? "Haptic Engine Detected" 
-                        : "Haptic API Unavailable (Desktop)"}
-                </div>
-             </div>
-             {!canVibrate && (
-                 <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                     Your device or browser does not support the <code className="bg-zinc-800 px-1 rounded text-zinc-300">navigator.vibrate</code> API. Visual cues will still be displayed. Try on an Android device for the full experience.
-                 </p>
-             )}
-        </div>
-
       </div>
     </div>
   );

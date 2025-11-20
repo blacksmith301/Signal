@@ -16,6 +16,14 @@ export const HAPTIC_CUES: HapticCue[] = [
     description: 'Rapid rhythmic bursts'
   },
   {
+    id: 'cue-whitening',
+    startTime: 20,
+    endTime: 22,
+    label: 'Whitening Pulse',
+    description: 'Triple-burst polishing action',
+    vibrationPattern: [300, 200, 300, 200, 300, 200]
+  },
+  {
     id: 'cue-deep',
     startTime: 28,
     endTime: 30,
