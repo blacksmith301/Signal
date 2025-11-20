@@ -2,6 +2,13 @@ import { HapticCue } from './types';
 
 export const HAPTIC_CUES: HapticCue[] = [
   {
+    id: 'cue-start-burst',
+    startTime: 6.8,
+    endTime: 7.1,
+    label: 'Activation',
+    description: 'Initial activation burst'
+  },
+  {
     id: 'cue-intense',
     startTime: 10,
     endTime: 12,
@@ -29,6 +36,13 @@ export const HAPTIC_CUES: HapticCue[] = [
     endTime: 30,
     label: 'Deep Scrub',
     description: 'Sustained deep cleaning action'
+  },
+  {
+    id: 'cue-closing-burst',
+    startTime: 38,
+    endTime: 38.3,
+    label: 'Closing Burst',
+    description: 'Final activation burst'
   }
 ];
 
