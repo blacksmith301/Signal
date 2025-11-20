@@ -3,8 +3,8 @@ import { HapticCue } from './types';
 export const HAPTIC_CUES: HapticCue[] = [
   {
     id: 'cue-start-burst',
-    startTime: 6.1,
-    endTime: 6.4,
+    startTime: 6.2,
+    endTime: 6.5,
     label: 'Activation',
     description: 'Initial activation burst'
   },
