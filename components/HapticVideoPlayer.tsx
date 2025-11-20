@@ -5,6 +5,7 @@ import { Timeline } from './Timeline';
 
 export const HapticVideoPlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
   const syncLoopRef = useRef<number | null>(null);
   
   const [isPlaying, setIsPlaying] = useState(false);
@@ -14,12 +15,40 @@ export const HapticVideoPlayer: React.FC = () => {
   const [activeCue, setActiveCue] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [canVibrate, setCanVibrate] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Check device capability
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.vibrate) {
       setCanVibrate(false);
     }
+  }, []);
+
+  // Handle Fullscreen toggling
+  const toggleFullscreen = useCallback(() => {
+    if (!playerContainerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen().catch(err => {
+        console.error(`Error attempting to exit fullscreen: ${err.message}`);
+      });
+    }
+  }, []);
+
+  // Listen for fullscreen changes (e.g. user pressing Escape)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   // The Heartbeat: Syncs video time to React state and triggers Haptics
@@ -119,7 +148,12 @@ export const HapticVideoPlayer: React.FC = () => {
     <div className="w-full max-w-4xl mx-auto space-y-6">
       
       {/* Player Container */}
-      <div className={`relative group aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-100 ${activeCue ? 'shadow-cyan-500/20 ring-2 ring-cyan-500/50 scale-[1.005]' : ''}`}>
+      <div 
+        ref={playerContainerRef}
+        className={`relative group bg-black overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-100 
+        ${isFullscreen ? 'w-full h-full rounded-none' : 'aspect-video rounded-2xl'}
+        ${activeCue && !isFullscreen ? 'shadow-cyan-500/20 ring-2 ring-cyan-500/50 scale-[1.005]' : ''}`}
+      >
         
         {/* Visual Vibration Overlay */}
         {activeCue && (
@@ -197,6 +231,9 @@ export const HapticVideoPlayer: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <button onClick={resetPlayer} className="text-zinc-300 hover:text-white transition" title="Replay">
                         <RefreshCw size={20} />
+                    </button>
+                    <button onClick={toggleFullscreen} className="text-zinc-300 hover:text-white transition" title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                        {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
                     </button>
                 </div>
             </div>
