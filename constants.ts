@@ -18,7 +18,7 @@ export const HAPTIC_CUES: HapticCue[] = [
   {
     id: 'cue-whitening',
     startTime: 21,
-    endTime: 22,
+    endTime: 22.2,
     label: 'Whitening Pulse',
     description: 'Triple-burst polishing action',
     vibrationPattern: [300, 200, 300, 200, 300, 200]
