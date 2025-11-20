@@ -10,14 +10,14 @@ export const HAPTIC_CUES: HapticCue[] = [
   },
   {
     id: 'cue-intense',
-    startTime: 10,
+    startTime: 9.5,
     endTime: 12,
     label: 'Intense Clean',
     description: 'High frequency sonic vibration'
   },
   {
     id: 'cue-pulse',
-    startTime: 16,
+    startTime: 15.5,
     endTime: 17,
     label: 'Pulse Mode',
     description: 'Rapid rhythmic bursts'

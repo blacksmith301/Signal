@@ -6,6 +6,7 @@ export const HapticVideoPlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const syncLoopRef = useRef<number | null>(null);
+  const controlsTimeoutRef = useRef<number>(0);
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -14,6 +15,7 @@ export const HapticVideoPlayer: React.FC = () => {
   const [activeCue, setActiveCue] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
   // Handle Fullscreen toggling
   const toggleFullscreen = useCallback(() => {
@@ -41,6 +43,41 @@ export const HapticVideoPlayer: React.FC = () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  // Auto-hide controls logic
+  const handleMouseMove = useCallback(() => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      window.clearTimeout(controlsTimeoutRef.current);
+    }
+    
+    // Only set timeout to hide if we are playing
+    if (isPlaying) {
+      controlsTimeoutRef.current = window.setTimeout(() => {
+        setShowControls(false);
+      }, 1000);
+    }
+  }, [isPlaying]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (isPlaying) {
+      setShowControls(false);
+    }
+  }, [isPlaying]);
+
+  // Effect to manage controls visibility based on play state
+  useEffect(() => {
+    if (!isPlaying) {
+      setShowControls(true);
+      if (controlsTimeoutRef.current) window.clearTimeout(controlsTimeoutRef.current);
+    } else {
+      // When playback starts, start the hide timer immediately
+      if (controlsTimeoutRef.current) window.clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = window.setTimeout(() => {
+        setShowControls(false);
+      }, 1000);
+    }
+  }, [isPlaying]);
 
   // The Heartbeat: Syncs video time to React state and triggers Haptics
   const handleSync = useCallback(() => {
@@ -132,9 +169,13 @@ export const HapticVideoPlayer: React.FC = () => {
       {/* Player Container */}
       <div 
         ref={playerContainerRef}
-        className={`relative group bg-black overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-100 
+        className={`relative bg-black overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-100 
         ${isFullscreen ? 'w-full h-full rounded-none' : 'aspect-video rounded-2xl'}
-        ${activeCue && !isFullscreen ? 'shadow-cyan-500/20 ring-2 ring-cyan-500/50 scale-[1.005]' : ''}`}
+        ${activeCue && !isFullscreen ? 'shadow-cyan-500/20 ring-2 ring-cyan-500/50 scale-[1.005]' : ''}
+        ${!showControls && isPlaying ? 'cursor-none' : 'cursor-default'}`}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleMouseMove} // Ensure touch wakes up controls
       >
         
         {/* Visual Vibration Overlay */}
@@ -169,7 +210,7 @@ export const HapticVideoPlayer: React.FC = () => {
 
         {/* Big Play Button (Center) - Only when paused */}
         {!isPlaying && !isLoading && (
-             <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none">
+             <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 transition-colors pointer-events-none">
                 <button 
                     className="w-20 h-20 bg-cyan-500/90 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(6,182,212,0.4)] backdrop-blur pointer-events-auto hover:scale-110 transition-transform duration-200"
                     onClick={togglePlay}
@@ -180,7 +221,8 @@ export const HapticVideoPlayer: React.FC = () => {
         )}
 
         {/* Controls Bar (Bottom) */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent z-30 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex flex-col gap-3">
+        <div className={`absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent z-30 transition-all duration-500 ease-out flex flex-col gap-3 
+            ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}`}>
             
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
