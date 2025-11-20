@@ -36,23 +36,9 @@ export default function App() {
       </main>
 
       <footer className="w-full border-t border-zinc-900 bg-zinc-950/50 backdrop-blur mt-auto z-10">
-        <div className="max-w-4xl mx-auto px-6 py-8 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-xs text-zinc-600">
-                <p>&copy; 2024 Signal Sonic Expert Demo. Educational Prototype.</p>
-            </div>
-            <div className="flex items-center gap-6 text-xs font-medium text-zinc-500">
-                <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-cyan-500/50"></span>
-                    React 19
-                </span>
-                <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500/50"></span>
-                    Tailwind CSS
-                </span>
-                <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-purple-500/50"></span>
-                    Vibrate API
-                </span>
+        <div className="max-w-4xl mx-auto px-6 py-8 flex justify-center items-center">
+            <div className="text-xs text-zinc-600 text-center">
+                <p>&copy; 2025 Signal Sonic Expert Demo | Prototype by DAT - The Ai Company</p>
             </div>
         </div>
       </footer>
