@@ -1,0 +1,5 @@
+{
+  "name": "Sonic Haptic Player",
+  "description": "A haptic-enabled video player that synchronizes physical device vibration with video content to simulate an ultrasonic toothbrush experience.",
+  "requestFramePermissions": []
+}
