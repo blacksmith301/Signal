@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Play, Pause, RefreshCw, Volume2, VolumeX, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Pause, RefreshCw, Volume2, VolumeX, Loader2, Maximize2, Minimize2, AlertTriangle } from 'lucide-react';
 import { HAPTIC_CUES, VIDEO_URL } from '../constants';
 
 export const HapticVideoPlayer: React.FC = () => {
@@ -16,6 +16,14 @@ export const HapticVideoPlayer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Simple iOS detection
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+  }, []);
 
   // Handle Fullscreen toggling
   const toggleFullscreen = useCallback(() => {
@@ -93,7 +101,8 @@ export const HapticVideoPlayer: React.FC = () => {
       // If we just entered a cue (or switched cues), trigger vibration
       if (activeCue !== currentCue.id) {
         setActiveCue(currentCue.id);
-        if (navigator.vibrate) {
+        // Only attempt vibration if supported (and not iOS just to be safe, though API check handles it usually)
+        if (navigator.vibrate && !isIOS) {
             if (currentCue.vibrationPattern) {
                 // Use specific pattern if defined (e.g., [300, 200, 300])
                 navigator.vibrate(currentCue.vibrationPattern);
@@ -116,7 +125,7 @@ export const HapticVideoPlayer: React.FC = () => {
     if (!videoRef.current.paused && !videoRef.current.ended) {
       syncLoopRef.current = requestAnimationFrame(handleSync);
     }
-  }, [activeCue]);
+  }, [activeCue, isIOS]);
 
   // Start/Stop Loop based on play state
   useEffect(() => {
@@ -164,7 +173,7 @@ export const HapticVideoPlayer: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl mx-auto space-y-4">
       
       {/* Player Container */}
       <div 
@@ -248,6 +257,17 @@ export const HapticVideoPlayer: React.FC = () => {
             </div>
         </div>
       </div>
+
+      {/* iOS Compatibility Warning */}
+      {isIOS && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex gap-3 items-start">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="text-sm text-amber-200/90">
+                <span className="font-semibold text-amber-400 block mb-1">iOS Device Detected</span>
+                Apple prevents web browsers from accessing physical vibration. The player will use visual shake effects instead. For physical haptics, please use an Android device.
+            </div>
+        </div>
+      )}
     </div>
   );
 };
